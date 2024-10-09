@@ -28,7 +28,9 @@ export default function Agenda() {
           <Card key={agenda.id} className="">
             <CardHeader className="flex-row justify-between">
               <div className="flex flex-col space-y-1.5">
-                <CardTitle>{agenda.movie.title}</CardTitle>
+                <CardTitle>
+                  {agenda.movie.title} {agenda.movie.ageRating > 0 ? `(${agenda.movie.ageRating}+)` : ""}
+                </CardTitle>
                 <CardDescription>{agenda.movie.description}</CardDescription>
               </div>
               <figure className="relative flex">
