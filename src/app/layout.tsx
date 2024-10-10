@@ -3,8 +3,10 @@ import Navbar from "@/components/Navbar";
 import QueryProvider from "@/providers/query-provider";
 import SessionProvider from "@/providers/session-provider";
 import ThemeProvider from "@/providers/theme-provider";
+import { Loader2Icon } from "lucide-react";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -38,6 +40,13 @@ export default function RootLayout({
             </QueryProvider>
           </SessionProvider>
         </ThemeProvider>
+        <Toaster
+          richColors
+          pauseWhenPageIsHidden
+          visibleToasts={6}
+          closeButton={true}
+          icons={{ loading: <Loader2Icon className="size-5 animate-spin" /> }}
+        />
       </body>
     </html>
   );

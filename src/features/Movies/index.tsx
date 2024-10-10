@@ -5,7 +5,7 @@ import axios from "@/lib/axios";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
-export default function Agenda() {
+export default function Movies() {
   const moviesQuery = useQuery({
     queryKey: ["movies"],
     queryFn: () => {
