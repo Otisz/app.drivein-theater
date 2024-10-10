@@ -1,24 +1,22 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useCreateMovie } from "@/hooks/mutations/movie";
+import { MovieCreateScheme, MovieCreateValues } from "@/lib/zod-schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isAxiosError } from "axios";
+import { Loader2Icon, SaveIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-
-const formSchema = z.object({
-  title: z.string().min(2).max(255),
-  description: z.string().min(2).max(30000),
-  ageRating: z.enum(["0", "6", "12", "16", "18"] as const),
-  language: z.string().min(2).max(255),
-});
 
 export default function MovieCreate() {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const mutator = useCreateMovie();
+
+  const form = useForm<MovieCreateValues>({
+    resolver: zodResolver(MovieCreateScheme),
     defaultValues: {
       title: "",
       description: "",
@@ -27,10 +25,22 @@ export default function MovieCreate() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  function onSubmit(values: MovieCreateValues) {
+    mutator.mutate(values, {
+      onError: (e) => {
+        if (isAxiosError(e) && e.response) {
+          const payload = e.response.data as ApiValidationResponse<Movie>;
+          if (e.response.status == 422) {
+            for (const key in payload.errors) {
+              form.setError(key as keyof MovieCreateValues, {
+                type: "custom",
+                message: payload.errors[key as keyof MovieCreateValues]!.at(0),
+              });
+            }
+          }
+        }
+      },
+    });
   }
 
   return (
@@ -96,7 +106,28 @@ export default function MovieCreate() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+
+        <FormField
+          control={form.control}
+          name="language"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Language</FormLabel>
+              <FormControl>
+                <Input required {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" disabled={mutator.isPending}>
+          {mutator.isPending ? (
+            <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <SaveIcon className="mr-2 h-4 w-4" />
+          )}
+          <span>Submit</span>
+        </Button>
       </form>
     </Form>
   );

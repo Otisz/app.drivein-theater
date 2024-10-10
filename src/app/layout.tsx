@@ -1,6 +1,8 @@
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import Providers from "@/components/Providers";
+import QueryProvider from "@/providers/query-provider";
+import SessionProvider from "@/providers/session-provider";
+import ThemeProvider from "@/providers/theme-provider";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 
@@ -28,8 +30,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Navbar />
-        <Providers>{children}</Providers>
+        <ThemeProvider>
+          <SessionProvider>
+            <QueryProvider>
+              <Navbar />
+              {children}
+            </QueryProvider>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
